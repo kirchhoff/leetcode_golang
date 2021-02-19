@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 type ListNode struct {
@@ -12,9 +11,10 @@ type ListNode struct {
 
 func printList(l *ListNode) {
 	for l != nil {
-		fmt.Println(l.Val)
+		fmt.Printf("%d ", l.Val)
 		l = l.Next
 	}
+	fmt.Println()
 }
 func reverseList(l *ListNode) *ListNode {
 	tail := l
@@ -35,35 +35,100 @@ func reverseList(l *ListNode) *ListNode {
 	}
 }
 
-func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	r1 := reverseList(l1)
-	r2 := reverseList(l2)
+func addTwoNumbers(r1 *ListNode, r2 *ListNode) *ListNode {
 
-	for l1 != nil || l2 != nil {
+	flag := 0
+	var ret = new(ListNode)
+	var iter *ListNode
+	//var once=true
+	for r1 != nil || r2 != nil {
+		iter = new(ListNode)
+		if r1 != nil && r2 != nil {
+			iter.Val = (r1.Val + r2.Val + flag) % 10
+			//fmt.Println("current iter",iter.Val)
+			flag = (r1.Val + r2.Val + flag) / 10
+			//fmt.Println("flag is ",flag)
+			r1 = r1.Next
+			r2 = r2.Next
+		} else if r1 == nil {
+			iter.Val = (r2.Val + flag) % 10
+			flag = (r2.Val + flag) / 10
+			r2 = r2.Next
+			//fmt.Println("current iter",iter.Val)
+		} else {
+			iter.Val = (r1.Val + flag) % 10
+			flag = (r1.Val + flag) / 10
+			r1 = r1.Next
+			//fmt.Println("current iter",iter.Val)
+		}
+
+		iter.Next = ret.Next
+		//fmt.Println("ret next isss ",ret.Next)
+		ret.Next = iter
+
+		//printList(ret.Next)
+	}
+	if flag != 0 {
+		iter = new(ListNode)
+		iter.Val = flag
+		iter.Next = ret.Next
+		//fmt.Println("ret next isss ",ret.Next)
+		ret.Next = iter
 
 	}
-	for i, p := 0, l1; p != nil; p = p.Next {
+	//printList(ret.Next)
+	//printList(ret.Next)
+	//printList(reverseList(ret.Next))
 
-		v1 = v1 + int(math.Pow10(i))*p.Val
-		//fmt.Println("v1",v1)
-		i = i + 1
-	}
-	for i, p := 0, l2; p != nil; p = p.Next {
+	return reverseList(ret.Next)
 
-		v2 = v2 + int(math.Pow10(i))*p.Val
-		i = i + 1
-	}
-	fmt.Println(v1, v2)
-	v3 := v1 + v2
-	/*fmt.Println(v3)
-	s3 := []rune(strconv.Itoa(v3))
-	for j := 0; j < len(s3)/2; j++ {
-		s3[j], s3[len(s3)-j-1] = s3[len(s3)-j-1], s3[j]
-	}
-	fmt.Println("s3 is ",string(s3))
-	ret,_:=strconv.ParseInt(string(s3),10,32)*/
+}
 
-	return iToListNode(v3)
+func addTwoNumbers2(r1 *ListNode, r2 *ListNode) *ListNode {
+
+	flag := 0
+	var ret = new(ListNode)
+	fin := ret
+	var iter *ListNode
+	for r1 != nil || r2 != nil {
+		iter = new(ListNode)
+		if r1 != nil && r2 != nil {
+			iter.Val = (r1.Val + r2.Val + flag) % 10
+			//fmt.Println("current iter",iter.Val)
+			flag = (r1.Val + r2.Val + flag) / 10
+			//fmt.Println("flag is ",flag)
+			r1 = r1.Next
+			r2 = r2.Next
+		} else if r1 == nil {
+			iter.Val = (r2.Val + flag) % 10
+			flag = (r2.Val + flag) / 10
+			r2 = r2.Next
+			//fmt.Println("current iter",iter.Val)
+		} else {
+			iter.Val = (r1.Val + flag) % 10
+			flag = (r1.Val + flag) / 10
+			r1 = r1.Next
+			//fmt.Println("current iter",iter.Val)
+		}
+
+		ret.Next = iter
+		//fmt.Println("ret next isss ",ret.Next)
+		ret = iter
+
+		//printList(ret.Next)
+	}
+	if flag != 0 {
+		iter = new(ListNode)
+		iter.Val = flag
+		ret.Next = iter
+		ret = iter
+
+	}
+	//printList(ret.Next)
+	//printList(ret.Next)
+	//printList(reverseList(ret.Next))
+
+	return fin.Next
 
 }
 
@@ -90,15 +155,52 @@ func iToListNode(v int) *ListNode {
 	return ret
 }
 func main() {
-	//n1 := 1000000000000000001
-	//l1 := iToListNode(n1)
-	n2 := 564
+	n1 := 73
+	l1 := iToListNode(n1)
+	printList(l1)
+	n2 := 29
 	l2 := iToListNode(n2)
 	printList(l2)
 	fmt.Println()
-	printList(reverseList(l2))
-	//addTwoNumbers(l1,l2)
+	//printList(reverseList(l2))
+	//printList(addTwoNumbers2(l1, l2))
+	printList(addTwoNumbers3(l1, l2))
 
 	//342 + 465 = 807.
 
+}
+
+func addTwoNumbers3(l1, l2 *ListNode) (ret *ListNode) {
+	carry := 0
+	var tail *ListNode
+	var t *ListNode
+	for l1 != nil || l2 != nil {
+		n1, n2 := 0, 0
+		if l1 != nil {
+			n1 = l1.Val
+			l1 = l1.Next
+		}
+		if l2 != nil {
+			n2 = l2.Val
+			l2 = l2.Next
+		}
+		summ := (n1 + n2 + carry) % 10
+		carry = (n1 + n2 + carry) / 10
+		if ret == nil {
+			ret = &ListNode{
+				Val: summ,
+			}
+			tail = ret
+		} else {
+			t = &ListNode{Val: summ}
+			tail.Next = t
+			tail = tail.Next
+		}
+	}
+	if carry != 0 {
+		t = &ListNode{Val: carry}
+		tail.Next = t
+		tail = tail.Next
+	}
+	return ret
 }
